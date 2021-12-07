@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/snoopy55619819/tinyapp/issues"
   },
-  "homepage": "https://github.com/snoopy55619819/tinyapp#readme"
+  "homepage": "https://github.com/snoopy55619819/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
