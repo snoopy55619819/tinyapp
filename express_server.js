@@ -17,9 +17,9 @@ app.get("/", (req, res) => {
 });
 
 //Urls database
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
 //Current urls page
 app.get("/urls", (req, res) => {
@@ -59,6 +59,9 @@ app.post("/urls", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//TO-DO: deal with edge cases and error handeling.
+
+//Generate random 6 lowercase letter string
 function generateRandomString() {
   let randomString = "";
   counter = 1;
