@@ -59,6 +59,16 @@ app.post("/urls", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//Delete urls
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+
+  //Take back to urls page.
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
 //TO-DO: deal with edge cases and error handeling.
 
 //Generate random 6 lowercase letter string

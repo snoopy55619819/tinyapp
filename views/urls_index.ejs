@@ -17,6 +17,7 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -24,9 +25,16 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
+            <td>
+              <!-- // "/urls/9sm5xK/delete" -->
+              <% const urlCurr = `/urls/${url}/delete` %>
+              <form method="POST" action="<%= urlCurr %>">
+                <button type="submit" class="btn btn-primary" style="border-color:#f44336; background-color:white; color:red;" >Delete</button>
+              </form>
+            </td>
           </tr>
-        <% } %>
-      </tbody>
+          <% } %>
+        </tbody>
     </table>
   </main>
   <!-- Bootstrap JS -->
