@@ -28,7 +28,10 @@ const userDatabase = {
 
 //Root directory page
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const userInCookies = req.cookies["user_id"];
+  
+  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 //Urls database
@@ -137,7 +140,8 @@ app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
   const userInCookies = req.cookies["user_id"];
 
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
+  //input user as undefined because the cookie seems to take an extra refresh to update...
+  const templateVars = { user: undefined, urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -157,7 +161,7 @@ app.post("/register", (req, res) => {
     res.render("urls_register", templateVars);
   } else {
     userDatabase[user_id] = {
-      id: username,
+      id: user_id,
       email: email,
       password: password
     };
@@ -187,6 +191,7 @@ app.post("/login", (req, res) => {
     if(userDatabase[currUserId]['password'] === password) {
       res.cookie('user_id', currUserId);
       
+      //reference user with global variable instead of cookie because cookies dont update until refresh.
       const templateVars = { user: userDatabase[currUserId], urls: urlDatabase };
       res.render("urls_index", templateVars);
     } else {
