@@ -49,14 +49,29 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 //If new longURL is submitted, process this on serverside.
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
+app.post("/urls/new", (req, res) => {
+  const randomURL = generateRandomString();
+  const shortURL = randomURL;
   const longURL = req.body['longURL'];
+  console.log(shortURL, longURL);
   //Add new shortURL:longURL to urlDatabase
   urlDatabase[shortURL] = longURL;
 
-  const templateVars = { shortURL: shortURL, longURL: longURL };
-  res.render("urls_show", templateVars);
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
+//Update URLs
+app.post("/urls/:shortURL/update", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body['longURL'];
+  //Add new shortURL:longURL to urlDatabase
+  delete urlDatabase[shortURL];
+  
+  urlDatabase[shortURL] = longURL;
+
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 //Delete urls

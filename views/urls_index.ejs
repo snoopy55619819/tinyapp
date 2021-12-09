@@ -17,6 +17,7 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">Edit</th>
           <th scope="col">Delete</th>
         </tr>
       </thead>
@@ -25,6 +26,12 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
+            <td>
+              <% const editURLCurr = `/urls/${url}` %>
+              <form method="GET" action="<%= editURLCurr %>">
+                <button type="submit" class="btn btn-primary">Edit</button>
+              </form>
+            </td>
             <td>
               <!-- // "/urls/9sm5xK/delete" -->
               <% const urlCurr = `/urls/${url}/delete` %>
