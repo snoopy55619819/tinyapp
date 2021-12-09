@@ -1,10 +1,12 @@
 const express = require("express");
-const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 
+const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -23,7 +25,7 @@ app.get("/urls.json", (req, res) => {
 
 //Current urls page
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -44,7 +46,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   
-  const templateVars = { shortURL: shortURL, longURL: longURL };
+  const templateVars = { username: req.cookies["username"], shortURL: shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
 
@@ -57,7 +59,7 @@ app.post("/urls/new", (req, res) => {
   //Add new shortURL:longURL to urlDatabase
   urlDatabase[shortURL] = longURL;
 
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -70,7 +72,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
   
   urlDatabase[shortURL] = longURL;
 
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -80,7 +82,21 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[shortURL];
 
   //Take back to urls page.
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
+app.post("/urls/username", (req, res) => {
+  res.cookie('username', req.body['username'])
+  
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
+
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
