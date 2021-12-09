@@ -88,7 +88,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/username", (req, res) => {
   res.cookie('username', req.body['username'])
-  console.log(req.body['username']);
   
   const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
