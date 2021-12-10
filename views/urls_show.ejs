@@ -19,7 +19,7 @@
         <% } %>
       </div>
       <div class="card-footer text-muted"></div>
-      <% if(user){ %>
+      <% if(user['id'] === ownerOfShortURL && urlDatabase[shortURL]){ %>
       <div>
         <main style="margin: 1em;">
           <h3>EDIT URL</h3>

@@ -45,8 +45,8 @@ app.get("/urls.json", (req, res) => {
 //HOMEPAGE: show current urls
 app.get("/urls", (req, res) => {
   const userInCookies = req.cookies["user_id"];
-  
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
+
+  const templateVars = { user: userDatabase[userInCookies], urls: urlsForUser(userInCookies) };
   res.render("urls_index", templateVars);
 });
 
@@ -73,13 +73,19 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userInCookies = req.cookies["user_id"];
   const shortURL = req.params.shortURL;
+  const ownerOfShortURL = urlDatabase[shortURL]['userID'];
   let longURL = ""
-  
   if(urlDatabase[shortURL]) {
     longURL = urlDatabase[shortURL]['longURL'];
   }
 
-  const templateVars = { user: userDatabase[userInCookies], urlDatabase: urlDatabase, shortURL: shortURL, longURL: longURL };
+  const templateVars = {
+    user: userDatabase[userInCookies],
+    urlDatabase,
+    shortURL,
+    longURL,
+    ownerOfShortURL
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -205,9 +211,10 @@ app.post("/login", (req, res) => {
     if(userDatabase[currUserId]['password'] === password) {
       res.cookie('user_id', currUserId);
       
-      //reference user with global variable instead of cookie because cookies dont update until refresh.
-      const templateVars = { user: userDatabase[currUserId], urls: urlDatabase };
-      res.render("urls_index", templateVars);
+      // //reference user with global variable instead of cookie because cookies dont update until refresh.
+      // const templateVars = { user: userDatabase[currUserId], urls: urlDatabase };
+      // res.render("urls_index", templateVars);
+      return res.redirect("/urls");
     } else {
       const templateVars = { 
         user: userDatabase[userInCookies],
@@ -248,6 +255,17 @@ const getUserId = (email) => {
       return userDatabase[user]['id'];
     }
   }
+};
+
+const urlsForUser = (id) => {
+  const userURLs = {};
+
+  for (const url in urlDatabase) {
+    if (id === urlDatabase[url]['userID']) {
+      userURLs[url] = urlDatabase[url];
+    }
+  }
+  return userURLs;
 };
 
 app.listen(PORT, () => {
