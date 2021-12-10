@@ -3,12 +3,17 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
+const cookieSession = require('cookie-session');
 
 
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['random secret key']
+}));
 
 const urlDatabase = {
   "b2xVn2": {
@@ -46,7 +51,7 @@ app.get("/urls.json", (req, res) => {
 
 //HOMEPAGE: show current urls
 app.get("/urls", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
 
   const templateVars = { user: userDatabase[userInCookies], urls: urlsForUser(userInCookies) };
   res.render("urls_index", templateVars);
@@ -54,7 +59,7 @@ app.get("/urls", (req, res) => {
 
 //Add new url page
 app.get("/urls/new", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
 
   if(!userInCookies) {
     return res.redirect("/login");
@@ -73,7 +78,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Show details on shortURL:LongURL page
 app.get("/urls/:shortURL", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
   const shortURL = req.params.shortURL;
   const ownerOfShortURL = urlDatabase[shortURL]['userID'];
   let longURL = ""
@@ -92,7 +97,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
   const errorMessage = false;
 
   const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase, errorMessage: errorMessage};
@@ -100,7 +105,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
   const errorMessage = false;
 
   const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase, errorMessage: errorMessage};
@@ -109,7 +114,7 @@ app.get("/login", (req, res) => {
 
 //If new longURL is submitted, process this on serverside.
 app.post("/urls/new", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
   const randomURL = generateRandomString();
   const shortURL = randomURL;
   const longURL = req.body['longURL'];
@@ -124,7 +129,7 @@ app.post("/urls/new", (req, res) => {
 
 //Update URLs
 app.post("/urls/:shortURL/update", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
   const shortURL = req.params.shortURL;
   const longURL = req.body['longURL'];
   //Add new shortURL:longURL to urlDatabase
@@ -147,20 +152,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   return res.redirect("/urls");
 });
 
-//Not being used anywhere currently.
-// app.post("/urls/user_id", (req, res) => {
-//   const currUser = req.body['user_id'];
-//   res.cookie('user_id', currUser);
-//   const userInCookies = req.cookies["user_id"];
-
-//   return res.redirect("/urls");
-//   const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
-//   res.render("urls_index", templateVars);
-// });
-
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
-  const userInCookies = req.cookies["user_id"];
+  req.session = null;
 
   //input user as undefined because the cookie seems to take an extra refresh to update...
   const templateVars = { user: undefined, urls: urlDatabase };
@@ -188,17 +181,16 @@ app.post("/register", (req, res) => {
       email: email,
       password: hashedPassword
     };
-    res.cookie('user_id', userDatabase[user_id].id);
+    req.session.user_id = userDatabase[user_id].id;
     
-    const templateVars = { user: userDatabase[user_id], urls: urlDatabase };
-    res.render("urls_index", templateVars);
+    res.redirect("/urls");
   }
 });
 
 app.post("/login", (req, res) => {
   const email = req.body['email'];
   const password = req.body['password'];
-  const userInCookies = req.cookies["user_id"];
+  const userInCookies = req.session.user_id;
   
   const errorMessage = true;
   
@@ -214,7 +206,7 @@ app.post("/login", (req, res) => {
     const hashedPassword = userDatabase[currUserId]['password'];
   
     if(bcrypt.compareSync(password, hashedPassword)) {
-      res.cookie('user_id', currUserId);
+      req.session.user_id = currUserId;
       
       return res.redirect("/urls");
     } else {
