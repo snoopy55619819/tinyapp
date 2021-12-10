@@ -2,6 +2,8 @@ const express = require("express");
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+
 
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -169,6 +171,7 @@ app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   const email = req.body['email'];
   const password = req.body['password'];
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const emailInUse = checkIfEmailInUse(email);
   const errorMessage = true;
   
@@ -183,7 +186,7 @@ app.post("/register", (req, res) => {
     userDatabase[user_id] = {
       id: user_id,
       email: email,
-      password: password
+      password: hashedPassword
     };
     res.cookie('user_id', userDatabase[user_id].id);
     
@@ -199,7 +202,7 @@ app.post("/login", (req, res) => {
   
   const errorMessage = true;
   
-  if(email === "" || password === "") {
+  if(email === "" || password === "" || !checkIfEmailInUse(email)) {
     const templateVars = { 
       user: userDatabase[userInCookies],
       urls: urlDatabase,
@@ -208,12 +211,11 @@ app.post("/login", (req, res) => {
     res.render("urls_login", templateVars);
   } else {
     const currUserId = getUserId(email);
-    if(userDatabase[currUserId]['password'] === password) {
+    const hashedPassword = userDatabase[currUserId]['password'];
+  
+    if(bcrypt.compareSync(password, hashedPassword)) {
       res.cookie('user_id', currUserId);
       
-      // //reference user with global variable instead of cookie because cookies dont update until refresh.
-      // const templateVars = { user: userDatabase[currUserId], urls: urlDatabase };
-      // res.render("urls_index", templateVars);
       return res.redirect("/urls");
     } else {
       const templateVars = { 
