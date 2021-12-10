@@ -9,8 +9,14 @@ app.set("view engine", "ejs");
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "username"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "username2"
+  }
 };
 
 const userDatabase = {
@@ -26,12 +32,9 @@ const userDatabase = {
   }
 };
 
-//Root directory page
+//Root directory page. Redirect to homepage.
 app.get("/", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
-  
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  return res.redirect("/urls");
 });
 
 //Urls database
@@ -39,7 +42,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//Current urls page
+//HOMEPAGE: show current urls
 app.get("/urls", (req, res) => {
   const userInCookies = req.cookies["user_id"];
   
@@ -50,6 +53,11 @@ app.get("/urls", (req, res) => {
 //Add new url page
 app.get("/urls/new", (req, res) => {
   const userInCookies = req.cookies["user_id"];
+
+  if(!userInCookies) {
+    return res.redirect("/login");
+  }
+
   const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
   res.render("urls_new", templateVars);
 });
@@ -57,18 +65,21 @@ app.get("/urls/new", (req, res) => {
 //Redirect to longUrl page
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL]['longURL'];
   res.redirect(longURL);
 });
 
 //Show details on shortURL:LongURL page
 app.get("/urls/:shortURL", (req, res) => {
   const userInCookies = req.cookies["user_id"];
-  
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  let longURL = ""
+  
+  if(urlDatabase[shortURL]) {
+    longURL = urlDatabase[shortURL]['longURL'];
+  }
 
-  const templateVars = { user: userDatabase[userInCookies], shortURL: shortURL, longURL: longURL };
+  const templateVars = { user: userDatabase[userInCookies], urlDatabase: urlDatabase, shortURL: shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
 
@@ -94,12 +105,13 @@ app.post("/urls/new", (req, res) => {
   const randomURL = generateRandomString();
   const shortURL = randomURL;
   const longURL = req.body['longURL'];
-  // console.log(shortURL, longURL);
+  
   //Add new shortURL:longURL to urlDatabase
-  urlDatabase[shortURL] = longURL;
-
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  urlDatabase[shortURL] = {
+    longURL: longURL,
+    userID: userInCookies
+  };
+  return res.redirect("/urls");
 });
 
 //Update URLs
@@ -110,31 +122,33 @@ app.post("/urls/:shortURL/update", (req, res) => {
   //Add new shortURL:longURL to urlDatabase
   delete urlDatabase[shortURL];
   
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {
+    longURL: longURL,
+    userID: userInCookies
+  };
 
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  return res.redirect("/urls");
 });
 
 //Delete urls
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userInCookies = req.cookies["user_id"];
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
 
   //Take back to urls page.
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  return res.redirect("/urls");
 });
 
-app.post("/urls/user_id", (req, res) => {
-  const currUser = req.body['user_id'];
-  res.cookie('user_id', currUser);
-  const userInCookies = req.cookies["user_id"];
+//Not being used anywhere currently.
+// app.post("/urls/user_id", (req, res) => {
+//   const currUser = req.body['user_id'];
+//   res.cookie('user_id', currUser);
+//   const userInCookies = req.cookies["user_id"];
 
-  const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
-  res.render("urls_index", templateVars);
-});
+//   return res.redirect("/urls");
+//   const templateVars = { user: userDatabase[userInCookies], urls: urlDatabase };
+//   res.render("urls_index", templateVars);
+// });
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');

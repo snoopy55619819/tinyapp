@@ -24,8 +24,8 @@
       <tbody>
         <% for(let url in urls) { %>
           <tr>
-            <td> <a href="<%= urls[url] %>"><%= url %> </a> </td>
-            <td> <a href="<%= urls[url] %>"><%= urls[url] %> </a> </td>
+            <td> <a href="<%= urls[url]['longURL'] %>"><%= url %> </a> </td>
+            <td> <a href="<%= urls[url]['longURL'] %>"><%= urls[url]['longURL'] %> </a> </td>
             <td>
               <% const editURLCurr = `/urls/${url}` %>
               <form method="GET" action="<%= editURLCurr %>">

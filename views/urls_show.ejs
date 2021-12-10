@@ -11,10 +11,15 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        <% if(urlDatabase[shortURL]){ %>
+          <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+          <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        <% } else{ %> 
+          <h5 class="card-title">TinyURL for: <%= shortURL %> does not exist.</h5>
+        <% } %>
       </div>
       <div class="card-footer text-muted"></div>
+      <% if(user){ %>
       <div>
         <main style="margin: 1em;">
           <h3>EDIT URL</h3>
@@ -27,6 +32,7 @@
           </form>
         </main>
       </div>
+      <% } %>
     </div>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
