@@ -11,7 +11,7 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <% if(urlDatabase[shortURL]){ %>
+        <% if(shortURLExists){ %>
           <h5 class="card-title">TinyURL for: <%= longURL %></h5>
           <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
         <% } else{ %> 
@@ -19,7 +19,7 @@
         <% } %>
       </div>
       <div class="card-footer text-muted"></div>
-      <% if(user['id'] === ownerOfShortURL && urlDatabase[shortURL]){ %>
+      <% if(showEditSection){ %>
       <div>
         <main style="margin: 1em;">
           <h3>EDIT URL</h3>
@@ -30,6 +30,9 @@
               <button type="submit" class="btn btn-primary">Submit</button>
             </div>
           </form>
+          <div style="color:red">
+            <%= errorMessage %>
+          </div>
         </main>
       </div>
       <% } %>

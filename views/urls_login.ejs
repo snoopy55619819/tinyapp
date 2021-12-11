@@ -23,10 +23,8 @@
           <label for="password">Password:</label>
           <input class="form-control" type="password" name="password" placeholder="**********" style="width: 300px; margin: auto;">
         </div>
-        <div>
-          <% if(errorMessage) { %>
-          400 Bad Request. Email/Password cannot be blank or Email/Password incorrect.
-          <% } %>
+        <div style="color: red;">
+          <%= errorMessage %>
         </div>
         <button type="submit" class="btn btn-primary" style="margin: 1em">Login</button>
       </form>

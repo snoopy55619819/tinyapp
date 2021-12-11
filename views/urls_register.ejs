@@ -18,17 +18,13 @@
 
       <form action="/register" method="POST" style="margin: center">
         <div class="form-group mb-2" margin="auto">
-          <label for="username">Username:</label>
-          <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: auto;">
           <label for="email">Email:</label>
           <input class="form-control" type="email" name="email" placeholder="example@gmail.com" style="width: 300px; margin: auto">
           <label for="password">Password:</label>
           <input class="form-control" type="password" name="password" placeholder="**********" style="width: 300px; margin: auto;">
         </div>
-        <div>
-          <% if(errorMessage) { %>
-          400 Bad Request. Email/Password cannot be blank or Email already in use.
-          <% } %>
+        <div style="color: red;">
+          <%= errorMessage %>
         </div>
         <button type="submit" class="btn btn-primary" style="margin: 1em">Register</button>
       </form>
