@@ -40,9 +40,9 @@ const userDatabase = {
   }
 };
 
-//Root directory page. Redirect to homepage.
+//Root directory page. Redirect to login page.
 app.get("/", (req, res) => {
-  return res.redirect("/urls");
+  return res.redirect("/login");
 });
 
 //HOMEPAGE: show urls of current user.
